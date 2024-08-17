@@ -9,33 +9,41 @@ import { fetchPhotos } from "./js/pixabay-api";
 const iconError = iconUrl;
 
 const searchForm = document.querySelector('.form');
-const button = document.querySelector('.btn')
 const loading = document.querySelector('.loader')
 const galleryListEl = document.querySelector('.gallery')
 
 const onSearchImg = event => {
   event.preventDefault();
   
-  const searchedValue = searchForm.elements.search_img.value;
+  const searchedValue = searchForm.elements.search_img.value.trim();
+   if (!searchedValue) {
+    iziToast.warning({
+      title: 'Warning',
+      message: 'Please fill the search field first.',
+      position: 'topRight',
+    }); 
+    searchForm.elements.search_img.value = '';
+    return;
+  }
    
   loading.classList.add('visible');
 
   fetchPhotos(searchedValue).then(data => {
     const array = data.hits;
     if (array.length === 0) {
-      iziToast.show({
+      iziToast.error({
         iconUrl: `${iconError}`,
         message: 'Sorry, there are no images matching your search query. Please try again!',
         messageColor: 'white',
         position: 'topRight',
         color: '#ef4040',
         maxWidth: '350px'
-      })
+      });
 
       loading.classList.remove('visible');
       galleryListEl.innerHTML = '';
       searchForm.reset();
-    }
+    };
       const gallaryCardsTemplate = data.hits.map(photoDetals => createGallery(photoDetals)).join('');
 
       galleryListEl.innerHTML = gallaryCardsTemplate;
